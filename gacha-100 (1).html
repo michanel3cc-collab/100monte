@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>100期一括シミュレータ ｜ 2PUに必要な石の新旧比較</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bakbak+One&family=M+PLUS+1+Code:wght@400;500;700&family=M+PLUS+1p:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E7F0F8; --card:#FFFFFF; --ink:#243D53; --muted:#7C93A8;
+  --azure:#1B8FF5; --azure-deep:#0B63B8;
+  --coral:#FF6E7F; --coral-deep:#D93F55;
+  --gold:#FFC53D; --free:#17C79A;
+  --line:#C6DAEB; --pale:#DCE8F2; --skew:-11deg;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  background-image:
+    radial-gradient(circle at 12% -10%, #FFFFFF 0%, rgba(255,255,255,0) 45%),
+    radial-gradient(circle at 92% 0%, #D6E9FB 0%, rgba(214,233,251,0) 40%);
+  background-attachment:fixed;
+  color:var(--ink); font-family:"M PLUS 1p",system-ui,sans-serif;
+  font-size:15px; line-height:1.75; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1020px;margin:0 auto;padding:26px 20px 32px}
+h2{font-family:"M PLUS 1p",sans-serif;font-weight:800;font-size:17px;margin:0 0 3px;line-height:1.4}
+.lede{color:var(--muted);margin:0 0 12px;font-size:13px;line-height:1.6}
+section{margin:30px 0 0}
+section:first-of-type{margin:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:3px;
+      box-shadow:0 1px 0 rgba(36,61,83,.05),0 10px 30px -22px rgba(36,61,83,.5)}
+
+button{font:inherit;color:inherit;cursor:pointer}
+.btn{transform:skewX(var(--skew));border:0;background:var(--ink);color:#fff;padding:8px 18px;
+     font-family:"M PLUS 1p";font-weight:700;font-size:12.5px;transition:background .15s, translate .15s}
+.btn > span{display:inline-block;transform:skewX(calc(var(--skew) * -1))}
+.btn:hover{background:var(--azure-deep)}
+.btn:active{translate:0 1px}
+.btn.go{background:var(--free);color:#053B2E}
+.btn.go:hover{background:#0FA37D}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--line)}
+.btn.ghost:hover{background:#fff;box-shadow:inset 0 0 0 2px var(--azure);color:var(--azure-deep)}
+.btn:focus-visible{outline:3px solid var(--azure);outline-offset:3px}
+.btn[disabled]{opacity:.3;pointer-events:none}
+
+.panel{padding:16px 22px 18px}
+.opts{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.fld{display:flex;align-items:center;gap:8px;font-family:"M PLUS 1 Code",monospace;
+     font-size:11px;color:var(--muted);letter-spacing:.06em}
+.fld input{width:64px;border:0;border-bottom:2px solid var(--line);background:transparent;
+     font-family:"M PLUS 1 Code",monospace;font-size:16px;font-weight:700;color:var(--ink);
+     padding:1px 0;text-align:center}
+.fld input:focus{border-bottom-color:var(--azure);outline:none}
+.seg{display:flex;transform:skewX(var(--skew));overflow:hidden;box-shadow:inset 0 0 0 2px var(--line)}
+.seg button{border:0;background:transparent;padding:6px 14px;font-size:12px;font-weight:700;
+            font-family:"M PLUS 1p";color:var(--muted)}
+.seg button > span{display:inline-block;transform:skewX(calc(var(--skew) * -1))}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.note{margin:12px 0 0;font-family:"M PLUS 1 Code",monospace;font-size:10.5px;
+      color:var(--muted);letter-spacing:.04em;line-height:1.8}
+
+/* 大型サマリ */
+.sum{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--line)}
+.si{padding:16px 22px 18px;border-right:1px solid var(--line)}
+.si:last-child{border-right:0}
+.si.win{background:#F1FBF7}
+.slabel{display:block;font-family:"M PLUS 1 Code",monospace;font-size:10.5px;font-weight:700;
+        letter-spacing:.1em;color:var(--muted);margin:0 0 7px}
+.sv{font-family:"Bakbak One",sans-serif;font-weight:400;line-height:.82;letter-spacing:-.03em;
+    font-variant-numeric:tabular-nums;font-size:clamp(32px,5.4vw,60px);color:var(--ink)}
+.sv.o{color:var(--coral-deep)} .sv.n{color:var(--azure-deep)}
+.su{font-family:"M PLUS 1 Code",monospace;font-size:12px;color:var(--muted);margin-left:4px}
+.ssub{display:block;margin:7px 0 0;font-family:"M PLUS 1 Code",monospace;
+      font-size:10px;color:var(--muted);letter-spacing:.05em;line-height:1.7}
+
+.grid{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--line)}
+.g{padding:12px 18px 14px;border-right:1px solid var(--line)}
+.g:last-child{border-right:0}
+.gv{font-family:"M PLUS 1 Code",monospace;font-size:11px;color:var(--muted)}
+.gv b{font-family:"Bakbak One",sans-serif;font-weight:400;font-size:23px;line-height:1;margin-right:2px}
+.gv b.o{color:var(--coral-deep)} .gv b.n{color:var(--azure-deep)}
+
+canvas{display:block;width:100%;height:230px}
+.chead{display:flex;gap:10px;align-items:center;padding:13px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.chead .rd{margin-left:auto;font-family:"M PLUS 1 Code",monospace;font-size:11px;color:var(--muted)}
+
+.progress{height:4px;background:var(--pale);border-radius:2px;overflow:hidden;margin:13px 0 0}
+.progress i{display:block;height:100%;width:0;background:var(--ink);transition:width .08s linear}
+.progress[hidden]{display:none}
+.empty{padding:52px 22px;text-align:center;font-family:"M PLUS 1 Code",monospace;
+       font-size:12px;color:var(--muted);letter-spacing:.06em;line-height:2}
+.empty b{display:block;font-family:"M PLUS 1p",sans-serif;font-weight:800;font-size:16px;
+         color:var(--ink);letter-spacing:0;margin:0 0 4px}
+.hide{display:none}
+.tablewrap{overflow-x:auto;max-height:420px;overflow-y:auto}
+table{border-collapse:collapse;width:100%;font-family:"M PLUS 1 Code",monospace;font-size:12px}
+th,td{padding:5px 11px;text-align:right;white-space:nowrap}
+thead th{position:sticky;top:0;background:var(--card);font-size:10px;letter-spacing:.06em;
+         color:var(--muted);font-weight:500;border-bottom:1px solid var(--line);z-index:1}
+tbody td:first-child,thead th:first-child{text-align:left;font-weight:700}
+tbody tr{border-bottom:1px solid #EFF5FA}
+tbody tr:hover{background:#F5FAFE}
+td.o{color:var(--coral-deep)} td.n{color:var(--azure-deep)}
+td.w{font-weight:700}
+td.bust{color:#fff;background:var(--coral-deep);font-weight:700}
+tfoot td{border-top:2px solid var(--line);background:#F4F9FD;font-weight:700;padding:8px 11px}
+
+footer{margin:26px 0 0;padding:14px 0 0;border-top:1px solid var(--line);
+       font-family:"M PLUS 1 Code",monospace;font-size:11px;color:var(--muted);
+       display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+@media (max-width:720px){
+  .sum{grid-template-columns:1fr}
+  .si{border-right:0;border-bottom:1px solid var(--line)}
+  .si:last-child{border-bottom:0}
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .g:nth-child(2n){border-right:0}
+  .g:nth-child(-n+2){border-bottom:1px solid var(--line)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section>
+  <h2>100期分をまとめて引いて新旧を比べる</h2>
+  <p class="lede">各期で両仕様が目標PU数に達するまで10連ずつ回し、必要だった青輝石を記録する。10連の途中では止まらないので目標を超えることがある。呼び出しチャージ（新仕様）は期をまたいで持ち越し。上限枚数を使い切っても届かなければ爆死として記録し、その期はそこで打ち切る。</p>
+
+  <div class="card panel">
+    <div class="opts">
+      <span class="fld">期数<input type="number" id="fN" value="100" min="1" max="100000" step="10"></span>
+      <span class="fld">目標PU
+        <span class="seg" id="segT">
+          <button data-t="1" aria-pressed="false"><span>1</span></button>
+          <button data-t="2" aria-pressed="true"><span>2</span></button>
+          <button data-t="3" aria-pressed="false"><span>3</span></button>
+          <button data-t="4" aria-pressed="false"><span>4</span></button>
+        </span>
+      </span>
+      <span class="fld">1期の上限<input type="number" id="fCap" value="400" min="10" max="2000" step="10">枚</span>
+      <button class="btn go" id="run"><span>100期を引く</span></button>
+      <button class="btn ghost" id="reroll"><span>別のシードで</span></button>
+      <span class="fld">シード<input type="number" id="fSeed" value="12345" min="0" step="1"></span>
+    </div>
+    <div class="progress" id="prog" hidden><i></i></div>
+    <p class="note" id="note">条件を決めて「100期を引く」を押してください</p>
+  </div>
+</section>
+
+<section>
+  <h2>結果</h2>
+  <p class="lede">目標に達するまでに必要だった青輝石の合計と1期あたりの平均。</p>
+  <div class="card">
+    <div class="empty" id="empty"><b>まだ引いていません</b>上のボタンを押すと1期ずつ結果が積み上がります</div>
+    <div class="sum hide" id="wrapSum">
+      <div class="si" id="siO">
+        <span class="slabel">旧仕様 合計</span>
+        <span class="sv o" id="vO">0</span><span class="su">石</span>
+        <span class="ssub" id="sO">—</span>
+      </div>
+      <div class="si" id="siN">
+        <span class="slabel">新仕様 合計</span>
+        <span class="sv n" id="vN">0</span><span class="su">石</span>
+        <span class="ssub" id="sN">—</span>
+      </div>
+      <div class="si" id="siD">
+        <span class="slabel">差</span>
+        <span class="sv" id="vD">0</span><span class="su">石</span>
+        <span class="ssub" id="sD">—</span>
+      </div>
+    </div>
+    <div class="grid hide" id="wrapGrid">
+      <div class="g"><span class="slabel">1期あたり平均</span>
+        <div class="gv"><b class="o" id="aO">0</b>石</div>
+        <div class="gv"><b class="n" id="aN">0</b>石</div></div>
+      <div class="g"><span class="slabel">中央値</span>
+        <div class="gv"><b class="o" id="mO">0</b>石</div>
+        <div class="gv"><b class="n" id="mN">0</b>石</div></div>
+      <div class="g"><span class="slabel">安く済んだ期</span>
+        <div class="gv"><b class="o" id="wO">0</b>期</div>
+        <div class="gv"><b class="n" id="wN">0</b>期</div></div>
+      <div class="g"><span class="slabel">爆死した期</span>
+        <div class="gv"><b class="o" id="bO">0</b>期</div>
+        <div class="gv"><b class="n" id="bN">0</b>期</div></div>
+    </div>
+    <div class="grid hide" id="wrapGain">
+      <div class="g"><span class="slabel">引けたPU 合計</span>
+        <div class="gv"><b class="o" id="pO">0</b>体</div>
+        <div class="gv"><b class="n" id="pN">0</b>体</div></div>
+      <div class="g"><span class="slabel">神名の欠片</span>
+        <div class="gv"><b class="o" id="hO">0</b>個</div>
+        <div class="gv"><b class="n" id="hN">0</b>個</div></div>
+      <div class="g"><span class="slabel">神名文字</span>
+        <div class="gv"><b class="o" id="cO">0</b>個</div>
+        <div class="gv"><b class="n" id="cN">0</b>個</div></div>
+      <div class="g"><span class="slabel">★3（PU以外）／ 青封筒</span>
+        <div class="gv"><b class="o" id="sO2">0</b><span id="eO">/ 0</span></div>
+        <div class="gv"><b class="n" id="sN2">0</b><span id="eN">/ 0</span></div></div>
+    </div>
+    <div class="chead hide" id="wrapHead">
+      <span class="slabel" style="margin:0">1期あたり必要石の分布</span>
+      <span class="rd" id="rd">グラフ上にカーソルを置くと内訳が出ます</span>
+    </div>
+    <canvas id="cv" class="hide"></canvas>
+  </div>
+</section>
+
+<section>
+  <h2>期ごとの明細</h2>
+  <p class="lede">安く済んだ側を太字で示す。爆死した期は赤く表示。神名の欠片は青封筒3.4個・★3（PU以外）50個・3体目以降のPU 50個で概算。</p>
+  <div class="card tablewrap" id="wrapTable" hidden>
+    <table>
+      <thead><tr>
+        <th>期</th>
+        <th>旧 石</th><th>旧 枚</th><th>旧 連</th><th>旧 PU</th>
+        <th>旧 欠片</th>
+        <th>新 石</th><th>新 枚</th><th>新 連</th><th>新 無料</th><th>新 PU</th><th>新 欠片</th>
+        <th>開始<br>チャージ</th><th>終了<br>チャージ</th><th>差（旧−新）</th>
+      </tr></thead>
+      <tbody id="tb"></tbody>
+      <tfoot id="tf"></tfoot>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <span>10連単位で判定 ／ 無料枠は獲得と同時に消化</span>
+  <span>青輝石 = チケット1枚 120石</span>
+</footer>
+
+</div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+
+/* ================= 固定条件 ================= */
+const CFG = {
+  star: 0.03, pu: 0.007,
+  ex:   200,           // 旧：この連数ごとに交換で確定1体（期ごとにリセット）
+  soft: 100, softP: 0.5, hard: 200,
+  freeAfter: [70,130,150,170,270,330,350,370],
+  freeLen: 10
+};
+const GEM = 120, BATCH = 10;
+const CHAR_PER_PU = 100;      // PU1体あたりの神名文字
+const SHARD_MISS  = 3.4;      // 青封筒1個あたりの神名の欠片（概算）
+const SHARD_STAR  = 50;       // ★3（PU以外）1体あたり
+const SHARD_DUPE  = 50;       // 3体目以降のPU 1体あたり
+const PU_FREE     = 2;        // ここまでのPUは欠片に変換されない（期ごと）
+
+/* 1期ぶんの神名の欠片。旧の交換ぶんは抽選ではないので封筒に数えない */
+function shardOf(r, puRoll){
+  const env  = r.pull - r.star - puRoll;              // 青封筒
+  const dupe = Math.max(0, r.pu - PU_FREE);           // 3体目以降のPU
+  return {env, total: SHARD_MISS*env + SHARD_STAR*r.star + SHARD_DUPE*dupe};
+}
+const isFree = n => CFG.freeAfter.some(s => n > s && n <= s + CFG.freeLen);
+
+const mulberry32 = a => () => {
+  a |= 0; a = a + 0x6D2B79F5 | 0;
+  let t = Math.imul(a ^ a>>>15, 1|a); t = t + Math.imul(t ^ t>>>7, 61|t) ^ t;
+  return ((t ^ t>>>14) >>> 0) / 4294967296;
+};
+
+/* ---- 旧仕様：1期ぶん。目標PUに達するまで10連ずつ ---- */
+function runOld(rng, target, cap){
+  let tix=0, pull=0, pu=0, puRoll=0, star=0;
+  while (tix < cap){
+    for (let i=0;i<BATCH && tix<cap;i++){
+      tix++; const n = ++pull, u = rng();
+      if (u < CFG.pu){ pu++; puRoll++; }
+      else if (u < CFG.star) star++;
+      if (n % CFG.ex === 0) pu++;              // 天井交換
+    }
+    if (pu >= target) break;
+  }
+  return {tix, pull, pu, puRoll, star, bust: pu < target};
+}
+
+/* ---- 新仕様：1期ぶん。チャージは引き継ぎ ---- */
+function runNew(rng, target, cap, c0){
+  let tix=0, pull=0, pu=0, star=0, free=0, c=c0;
+  const draw = () => {
+    const n = ++pull, u = rng();
+    if (isFree(n)) free++;
+    let thr = CFG.pu, sure3 = false;
+    if (c === CFG.soft-1){ thr = CFG.softP; sure3 = true; }   // 外れても★3は確定
+    else if (c === CFG.hard-1) thr = 1;
+    if (u < thr){ pu++; c = 0; }
+    else { if (sure3 || u < CFG.star) star++; c++; }
+  };
+  while (tix < cap){
+    for (let i=0;i<BATCH && tix<cap;i++){
+      tix++;
+      while (isFree(pull+1)) draw();           // 未消化の無料枠
+      draw();                                  // 有料1連
+      while (isFree(pull+1)) draw();           // 獲得した無料枠を即消化
+    }
+    if (pu >= target) break;
+  }
+  return {tix, pull, pu, puRoll:pu, star, free, c, bust: pu < target};
+}
+
+let R = null, target = 2, anim = null, lastKey = null;
+const DURATION = 4000;                       // 51期以上での所要時間(ms)
+/* 50期以下は期数に比例して短縮（1期あたり80ms）。51期以上は一律4秒 */
+const durationFor = n => n <= 50 ? Math.round(DURATION / 50 * n) : DURATION;
+
+/* 現在のフォーム条件を1つの文字列にまとめる（同一判定に使う） */
+function condKey(){
+  const N   = Math.max(1, Math.min(100000, Math.round(+$("#fN").value) || 100));
+  const cap = Math.max(10, Math.round(+$("#fCap").value) || 400);
+  const seed = Math.round(+$("#fSeed").value) || 0;
+  return {N, cap, seed, c0:0, key:`${N}|${cap}|${seed}|${target}`};
+}
+
+/* 同じ条件で引き終わっているならボタンを止める */
+function syncRun(){
+  const k = condKey().key;
+  const same = anim === null && lastKey === k;
+  $("#run").toggleAttribute("disabled", !!anim || same);
+  $("#run").title = same ? "同じ条件の結果を表示中です。シードや条件を変えると引けます" : "";
+}
+
+function simulate(){
+  if (anim) return;
+  const {N, cap, seed, c0, key} = condKey();
+  let c = c0;
+  lastKey = key;
+
+  const rngO = mulberry32(seed ^ 0x2545F491), rngN = mulberry32(seed ^ 0x5BF03635);
+  const all = [];
+  for (let i=0;i<N;i++){
+    const o = runOld(rngO, target, cap);
+    const c0 = c;
+    const n = runNew(rngN, target, cap, c);
+    c = n.c;
+    all.push({i:i+1, o, n, c0, c1:n.c});
+  }
+  R = {N, cap, seed, all, rows: []};
+  reveal();
+}
+
+/* 4秒かけて1期ずつ積み上げる（経過時間に比例した件数まで表示） */
+function reveal(){
+  if (anim) cancelAnimationFrame(anim);
+  ["#wrapSum","#wrapGrid","#wrapGain","#wrapHead","#cv"].forEach(id => $(id).classList.remove("hide"));
+  $("#empty").classList.add("hide");
+  $("#wrapTable").hidden = false;
+  $("#prog").hidden = false;
+  $("#run").toggleAttribute("disabled", true);
+  $("#reroll").toggleAttribute("disabled", true);
+
+  const t0 = performance.now(), dur = durationFor(R.N);
+  const step = now => {
+    const p = Math.min(1, (now - t0) / dur);
+    const want = Math.max(1, Math.ceil(p * R.N));
+    if (want > R.rows.length){
+      R.rows = R.all.slice(0, want);
+      render();
+    }
+    $("#prog").firstElementChild.style.width = (p*100) + "%";
+    if (p < 1) anim = requestAnimationFrame(step);
+    else {
+      anim = null;
+      $("#prog").hidden = true;
+      $("#reroll").toggleAttribute("disabled", false);
+      syncRun();
+    }
+  };
+  anim = requestAnimationFrame(step);
+}
+
+const jp = v => Math.round(v).toLocaleString("ja-JP");
+const median = a => { const s=[...a].sort((x,y)=>x-y), m=s.length>>1;
+  return s.length%2 ? s[m] : (s[m-1]+s[m])/2; };
+
+function render(){
+  if (!R || !R.rows.length) return;
+  const {cap, rows} = R, N = rows.length;
+  const gO = rows.map(r => r.o.tix*GEM), gN = rows.map(r => r.n.tix*GEM);
+  const sO = gO.reduce((a,b)=>a+b,0), sN = gN.reduce((a,b)=>a+b,0);
+  const bO = rows.filter(r=>r.o.bust).length, bN = rows.filter(r=>r.n.bust).length;
+  const wO = rows.filter(r=>r.o.tix < r.n.tix).length;
+  const wN = rows.filter(r=>r.n.tix < r.o.tix).length;
+  const d  = sO - sN;
+
+  $("#vO").textContent = jp(sO); $("#vN").textContent = jp(sN);
+  $("#sO").textContent = `${jp(sO/GEM)} 枚 ／ ${jp(rows.reduce((a,r)=>a+r.o.pull,0))} 連 ／ PU ${rows.reduce((a,r)=>a+r.o.pu,0)} 体`;
+  $("#sN").textContent = `${jp(sN/GEM)} 枚 ／ ${jp(rows.reduce((a,r)=>a+r.n.pull,0))} 連（無料 ${jp(rows.reduce((a,r)=>a+r.n.free,0))}） ／ PU ${rows.reduce((a,r)=>a+r.n.pu,0)} 体`;
+  $("#vD").textContent = jp(Math.abs(d));
+  $("#vD").className = "sv " + (d>0 ? "n" : d<0 ? "o" : "");
+  $("#sD").textContent = d === 0 ? "同額"
+    : `${d>0 ? "新仕様" : "旧仕様"}が ${(Math.abs(d)/Math.max(sO,sN)*100).toFixed(1)}% 安い`;
+  $("#siO").classList.toggle("win", sO < sN);
+  $("#siN").classList.toggle("win", sN < sO);
+
+  $("#aO").textContent = jp(sO/N); $("#aN").textContent = jp(sN/N);
+  $("#mO").textContent = jp(median(gO)); $("#mN").textContent = jp(median(gN));
+  $("#wO").textContent = wO; $("#wN").textContent = wN;
+  $("#bO").textContent = bO; $("#bN").textContent = bN;
+
+  // 実際に引けた獲得物
+  const G = {oPU:0,nPU:0,oS:0,nS:0,oE:0,nE:0,oH:0,nH:0};
+  rows.forEach(r => {
+    const a = shardOf(r.o, r.o.puRoll), b = shardOf(r.n, r.n.puRoll);
+    G.oPU+=r.o.pu; G.nPU+=r.n.pu; G.oS+=r.o.star; G.nS+=r.n.star;
+    G.oE+=a.env;   G.nE+=b.env;   G.oH+=a.total;  G.nH+=b.total;
+  });
+  R.G = G;
+  $("#pO").textContent = jp(G.oPU);  $("#pN").textContent = jp(G.nPU);
+  $("#hO").textContent = jp(G.oH);   $("#hN").textContent = jp(G.nH);
+  $("#cO").textContent = jp(G.oPU*CHAR_PER_PU); $("#cN").textContent = jp(G.nPU*CHAR_PER_PU);
+  $("#sO2").textContent = jp(G.oS);  $("#sN2").textContent = jp(G.nS);
+  $("#eO").textContent = "/ " + jp(G.oE) + "封筒";
+  $("#eN").textContent = "/ " + jp(G.nE) + "封筒";
+
+  const tie = N - wO - wN;
+  $("#note").textContent =
+    `${N} / ${R.N} 期 ／ 目標 ${target}PU ／ 1期の上限 ${cap} 枚（${jp(cap*GEM)} 石） ／ シード ${R.seed}`
+    + (tie ? ` ／ 同額 ${tie} 期` : "");
+
+  // 明細（多いときは先頭200期のみ描画）
+  const lim = Math.min(N, 200);
+  let h = "";
+  for (let i=0;i<lim;i++){
+    const r = rows[i], a = r.o.tix*GEM, b = r.n.tix*GEM, dd = a-b;
+    const shO = shardOf(r.o, r.o.puRoll).total, shN = shardOf(r.n, r.n.puRoll).total;
+    h += `<tr><td>${r.i}</td>`
+      + `<td class="o ${r.o.bust?"bust":""} ${a<b?"w":""}">${jp(a)}</td><td>${r.o.tix}</td><td>${r.o.pull}</td><td>${r.o.pu}</td><td>${jp(shO)}</td>`
+      + `<td class="n ${r.n.bust?"bust":""} ${b<a?"w":""}">${jp(b)}</td><td>${r.n.tix}</td><td>${r.n.pull}</td><td>${r.n.free}</td><td>${r.n.pu}</td><td>${jp(shN)}</td>`
+      + `<td>${r.c0}</td><td>${r.c1}</td>`
+      + `<td class="${dd>0?"n":dd<0?"o":""}">${dd>0?"+":""}${jp(dd)}</td></tr>`;
+  }
+  $("#tb").innerHTML = h + (N>lim ? `<tr><td colspan="15" style="text-align:center;color:var(--muted)">… 以降 ${N-lim} 期は省略（集計には含まれています）</td></tr>` : "");
+  $("#tf").innerHTML = `<tr><td>合計</td><td class="o">${jp(sO)}</td><td>${jp(sO/GEM)}</td>`
+    + `<td>${jp(rows.reduce((a,r)=>a+r.o.pull,0))}</td><td>${jp(G.oPU)}</td><td>${jp(G.oH)}</td>`
+    + `<td class="n">${jp(sN)}</td><td>${jp(sN/GEM)}</td>`
+    + `<td>${jp(rows.reduce((a,r)=>a+r.n.pull,0))}</td><td>${jp(rows.reduce((a,r)=>a+r.n.free,0))}</td>`
+    + `<td>${jp(G.nPU)}</td><td>${jp(G.nH)}</td><td>—</td><td>${rows[N-1].c1}</td>`
+    + `<td class="${d>0?"n":d<0?"o":""}">${d>0?"+":""}${jp(d)}</td></tr>`;
+
+  drawChart(gO, gN, cap);
+}
+
+/* ---------- 分布グラフ ---------- */
+let CH = null, hoverB = null;
+function drawChart(gO, gN, cap){
+  const cv = $("#cv"), ctx = cv.getContext("2d");
+  const dpr = devicePixelRatio || 1, W = cv.clientWidth, H = 230;
+  cv.width = W*dpr; cv.height = H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+
+  const BINS = 20, top = cap*GEM, bw = top/BINS;
+  const hO = new Array(BINS).fill(0), hN = new Array(BINS).fill(0);
+  gO.forEach(v => hO[Math.min(BINS-1, Math.floor(v/bw))]++);
+  gN.forEach(v => hN[Math.min(BINS-1, Math.floor(v/bw))]++);
+  CH = {hO, hN, bw, BINS, W, H};
+
+  const L=42,Rr=12,T=12,B=26, iw=W-L-Rr, ih=H-T-B;
+  const ymax = Math.max(...hO, ...hN, 1);
+  ctx.font = '10px "M PLUS 1 Code", monospace';
+  for (let i=0;i<=4;i++){
+    const y = T + ih*(1-i/4);
+    ctx.strokeStyle = i ? "#EDF3F9" : "#C6DAEB"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(L,y+.5); ctx.lineTo(W-Rr,y+.5); ctx.stroke();
+    ctx.fillStyle = "#7C93A8"; ctx.textAlign="right"; ctx.textBaseline="middle";
+    ctx.fillText(Math.round(ymax*i/4), L-8, y);
+  }
+  const cw = iw/BINS;
+  for (let i=0;i<BINS;i++){
+    const x = L + cw*i;
+    const bar = (v,off,color) => {
+      const h = ih*v/ymax;
+      ctx.fillStyle = color;
+      ctx.fillRect(x + cw*0.12 + off, T+ih-h, cw*0.38, h);
+    };
+    bar(hO[i], 0,        "#FF6E7F");
+    bar(hN[i], cw*0.40,  "#1B8FF5");
+    if (i % 4 === 0){
+      ctx.fillStyle="#7C93A8"; ctx.textAlign="center"; ctx.textBaseline="top";
+      ctx.fillText(Math.round(bw*i/1000)+"k", x+cw/2, T+ih+7);
+    }
+    if (hoverB === i){
+      ctx.strokeStyle="#243D53"; ctx.globalAlpha=.25; ctx.lineWidth=1;
+      ctx.strokeRect(x+.5, T+.5, cw-1, ih-1); ctx.globalAlpha=1;
+    }
+  }
+  ctx.fillStyle="#7C93A8"; ctx.textAlign="right"; ctx.textBaseline="top";
+  ctx.fillText("必要石", W-Rr, T+ih+7);
+}
+$("#cv").addEventListener("pointermove", e => {
+  if (!CH) return;
+  const r = e.currentTarget.getBoundingClientRect(), L=42, Rr=12, iw=r.width-L-Rr;
+  const i = Math.floor((e.clientX-r.left-L)/iw*CH.BINS);
+  if (i < 0 || i >= CH.BINS){ hoverB = null; $("#rd").textContent = "グラフ上にカーソルを置くと内訳が出ます"; }
+  else {
+    hoverB = i;
+    $("#rd").innerHTML = `${jp(CH.bw*i)}〜${jp(CH.bw*(i+1))} 石 ／ `
+      + `旧 <b style="color:var(--coral-deep)">${CH.hO[i]}</b> 期 ・ `
+      + `新 <b style="color:var(--azure-deep)">${CH.hN[i]}</b> 期`;
+  }
+  if (R && R.rows.length) drawChart(R.rows.map(x=>x.o.tix*GEM), R.rows.map(x=>x.n.tix*GEM), R.cap);
+});
+$("#cv").addEventListener("pointerleave", () => {
+  hoverB = null; $("#rd").textContent = "グラフ上にカーソルを置くと内訳が出ます";
+  if (R && R.rows.length) drawChart(R.rows.map(x=>x.o.tix*GEM), R.rows.map(x=>x.n.tix*GEM), R.cap);
+});
+addEventListener("resize", () => { if (R && R.rows.length) render(); });
+
+$("#segT").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  [...e.currentTarget.children].forEach(x => x.setAttribute("aria-pressed", x===b));
+  target = +b.dataset.t;
+  $("#run").firstElementChild.textContent = `${$("#fN").value}期を引く`;
+  syncRun();
+});
+$("#fN").addEventListener("input", () => {
+  $("#run").firstElementChild.textContent = `${$("#fN").value}期を引く`;
+});
+$("#run").onclick = () => simulate();
+$("#reroll").onclick = () => {           // シードを変えるだけ。引くのは「◯期を引く」
+  if (anim) return;
+  $("#fSeed").value = (Math.random()*1e6)|0;
+  syncRun();
+  $("#note").textContent = `シードを ${$("#fSeed").value} に変更しました。「${$("#fN").value}期を引く」を押してください`;
+};
+
+/* 条件を触ったら実行ボタンを再判定 */
+["#fN","#fCap","#fSeed"].forEach(id =>
+  $(id).addEventListener("input", syncRun));
+
+$("#fSeed").value = (Math.random()*1e6)|0;   // 起動ごとに別のシード
+syncRun();
+</script>
+</body>
+</html>
